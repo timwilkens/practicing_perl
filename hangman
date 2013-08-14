@@ -1,0 +1,110 @@
+#! usr/bin/perl
+
+use strict;
+
+print "Would you like to play 1 player or 2? \n";
+
+chomp(my $player_choice = <STDIN>);
+my $guess_word;
+
+if ($player_choice == 2) {
+	print "Please enter a word to guess: \n";
+	chomp($guess_word = <STDIN>);
+	$guess_word = lc($guess_word);
+	print "\n"x100;
+} elsif ($player_choice == 1) {
+	my $range = 20;
+	my $random_number = int(rand($range));
+	my $cycle_counter = 0;
+	open my $word_list_fh, '<', "word_list.txt" or die "Could not open word list\n";
+	for my $line (<$word_list_fh>){
+		chomp $line;
+		$cycle_counter++;
+		print "$cycle_counter\n";
+		if ($cycle_counter == $random_number){
+			$guess_word = $line;
+		}
+	}
+	print "\n"x100;
+} else {
+	print "That was not one of the options! You lose\n";
+	exit;
+}
+
+print "Please guess a letter. You can miss six times before you lose. Good luck!\n";
+my $win_condition = 0;
+my $letter_guess;
+my @letters_correctly_guessed;
+my @letters_guessed;
+my @array_to_print;
+my $guess_counter = 0;
+
+
+while ($win_condition == 0) {
+	print "Guess a letter: ";
+	chomp($letter_guess = <STDIN>);
+	for my $letters_guessed (@letters_guessed) {
+		if ($letters_guessed =~ /$letter_guess/) {
+			print "You already guessed that letter!\n";
+			print "Please guess another: \n";
+			chomp($letter_guess = <STDIN>);
+		}
+	}	
+	if ($guess_word =~ /$letter_guess/) {
+		print "$letter_guess is in the word!\n";
+		push (@letters_correctly_guessed, $letter_guess);
+	} else {
+		$guess_counter += 1;
+		print "$letter_guess is not in the word\n";
+	}
+	push (@letters_guessed, $letter_guess);
+	@array_to_print = &word_print(\@letters_correctly_guessed, $guess_word);
+	print "You have"." ".(6 - $guess_counter)." guesses remaining\n";
+	print "\n"x2;
+	print "@array_to_print\n";
+	$win_condition = &win_test(\@letters_correctly_guessed, $guess_word);
+	($win_condition = 2) if ($guess_counter == 6);
+}
+
+print "Congratulations! You won!\n" if ($win_condition == 1);
+print "Sorry! You are a loser!\n" if ($win_condition == 2);
+print "The word was $guess_word\n";
+
+sub word_print{
+	my ($letters_guessed, $word) = @_;
+	my @word_to_print;
+	my @broken_up_word = split(//, $word);
+	my %check_hash;
+	for my $letter (@$letters_guessed) {
+		chomp $letter;
+		$check_hash{$letter} = "1";;
+	}
+	for my $letters (@broken_up_word) {
+		chomp $letters;
+		if (defined $check_hash{$letters}) {
+			push (@word_to_print, $letters);				
+		} else {
+			push (@word_to_print, "_");
+		}
+	}	
+
+	return @word_to_print;
+}
+
+sub win_test {
+	my ($letters_guessed, $word) = @_;
+	my @test = &word_print(\@$letters_guessed, $word);
+	my %win_hash;
+	my $win_result;
+
+	for my $letters (@test) {
+		chomp $letters;
+		$win_hash{$letters} = 1;
+	}
+	if (defined $win_hash{"_"}) {
+		$win_result = 0;
+	} else {
+		$win_result = 1;
+	}
+	return $win_result;
+}

@@ -1,0 +1,45 @@
+#! usr/bin/perl
+
+use strict;
+use 5.010;
+
+
+sub quickSorting {
+        my @list = @_;
+        my $length = scalar @list;
+        if ($length <= 1){
+                return @list;
+        }
+        my $index = int($length/2);
+        my $pivot = @list[$index];
+        splice @list, $index, 1;
+        my @greater;
+        my @less;
+	state $cycles = 0;
+
+        for my $number (@list) {
+                if ($number > $pivot) {
+                        push (@greater, "$number");
+                }
+                if ($number <= $pivot) {
+                        push (@less, "$number");
+                }
+        }
+	$cycles++;
+	print "Turn $cycles\n";
+        return (&quickSorting(@less), $pivot, &quickSorting(@greater));
+}
+my @test;
+my $stop = 0;
+open FILE, "<", "sort_test.txt" or die "Couldn't open file\n";
+while (<FILE>) {
+        chomp;
+        push @test, $_;
+	$stop ++;
+	close FILE if $stop == 5000;
+}
+close FILE;
+@test = &quickSorting(@test);
+
+print "@test\n";
+print "Sorted"." ".@test." "."words\n";

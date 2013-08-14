@@ -1,0 +1,45 @@
+#! usr/bin/perl
+
+use strict;
+use 5.010;
+
+
+sub bubble {
+	my @list = @_;
+	my $change_counter = 0;
+	my $last_index = ((scalar @list) -2);
+	state $cycles = 0;
+
+	for my $index (0 .. ($last_index)){
+		if (@list[$index + 1] < @list[$index]){
+			my $copy = @list[$index + 1];
+			splice @list, ($index + 1), 1;
+			splice @list, $index, 0, $copy;
+			$change_counter ++;
+		}
+	}	
+	if ($change_counter == 0){
+		return @list;
+	} else {
+		$cycles ++;
+		print "Turn $cycles\n";
+		&bubble(@list);
+	}
+}
+my @test;
+my $stop = 0;
+open FILE, "<", "sort_test.txt" or die "Couldn't open file\n";
+while (<FILE>) {
+	chomp;
+	push @test, $_;
+	$stop ++;
+	if ($stop == 5000){
+		close FILE;
+	}
+}
+
+close FILE;
+
+@test = &bubble(@test);
+print "@test\n";
+print "Sorted"." ".@test." "."words\n";

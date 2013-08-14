@@ -1,0 +1,37 @@
+#! usr/bin/perl
+
+use strict;
+
+sub squareRoot {
+	my $square = @_[0];
+	my $epsilon = @_[1];
+	my $low = 0;
+	my $high = $square;
+	my $guess = ($square/2);
+	my $difference = abs($square - ($guess*$guess));
+	my $step_counter = 1;
+
+
+	while ($difference > $epsilon) {
+		if (($guess*$guess) > $square) {
+			$high = $guess;
+			$guess = (($low + $high)/2);
+		} else {
+			$low = $guess;
+			$guess = (($low + $high)/2);
+		}
+		$difference = abs($square - ($guess*$guess));
+		$step_counter++;
+	}
+	print "It took $step_counter cycles to get your answer\n";
+	return $guess;
+}
+
+print "What number would like to find the square root for?\n";
+chomp(my $number = <STDIN>);
+print "How close does it need to be?\n";
+chomp(my $error = <STDIN>);
+
+my $square_root = &squareRoot($number, $error);
+
+print "$square_root\n";

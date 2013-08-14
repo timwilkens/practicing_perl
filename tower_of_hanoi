@@ -1,0 +1,33 @@
+#! usr/bin/perl
+
+use strict;
+use 5.010;
+
+sub hanoi {
+	my $n = @_[0];
+	my $starting_peg = @_[1];
+	my $ending_peg = @_[2];
+	my $spare_peg = @_[3];	
+	state $move_counter = 0;
+
+	if ($n == 0) {
+		print "Nothing to solve. Exiting...\n";
+		exit;
+	}
+
+
+	if ($n == 1) {
+		$move_counter++;
+		print "$move_counter. Move disc on $starting_peg to $ending_peg\n";
+	} else {
+		&hanoi(($n-1), $starting_peg, $spare_peg, $ending_peg);
+		&hanoi(1, $starting_peg, $ending_peg, $spare_peg);
+		&hanoi(($n-1), $spare_peg, $ending_peg, $starting_peg);
+	}
+}
+
+print "How many discs would you like a solution for?\n";
+chomp(my $discs = <STDIN>);
+
+
+&hanoi($discs, "FIRST", "THIRD", "SECOND");
