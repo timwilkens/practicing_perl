@@ -28,12 +28,12 @@ sub bubble {
 }
 my @test;
 my $stop = 0;
-open FILE, "<", "sort_test.txt" or die "Couldn't open file\n";
+open FILE, "<", "number_list" or die "Couldn't open file\n";
 while (<FILE>) {
 	chomp;
 	push @test, $_;
 	$stop ++;
-	if ($stop == 5000){
+	if ($stop == 2000){
 		close FILE;
 	}
 }
