@@ -13,18 +13,11 @@ if ($player_choice == 2) {
 	$guess_word = lc($guess_word);
 	print "\n"x100;
 } elsif ($player_choice == 1) {
-	my $range = 20;
-	my $random_number = int(rand($range));
-	my $cycle_counter = 0;
 	open my $word_list_fh, '<', "word_list.txt" or die "Could not open word list\n";
-	for my $line (<$word_list_fh>){
-		chomp $line;
-		$cycle_counter++;
-		print "$cycle_counter\n";
-		if ($cycle_counter == $random_number){
-			$guess_word = $line;
-		}
-	}
+	chomp(my @words = <$word_list_fh>);
+	my $range = @words;
+	my $random = int(rand($range));
+	$guess_word = @words[$random - 1];
 	print "\n"x100;
 } else {
 	print "That was not one of the options! You lose\n";
@@ -38,18 +31,33 @@ my @letters_correctly_guessed;
 my @letters_guessed;
 my @array_to_print;
 my $guess_counter = 0;
-
+my $guess_condition = 0;
+my $repeater = 0;
 
 while ($win_condition == 0) {
-	print "Guess a letter: ";
-	chomp($letter_guess = <STDIN>);
-	for my $letters_guessed (@letters_guessed) {
-		if ($letters_guessed =~ /$letter_guess/) {
-			print "You already guessed that letter!\n";
-			print "Please guess another: \n";
-			chomp($letter_guess = <STDIN>);
+	while ($guess_condition == 0) {
+		if (scalar @letters_guessed != 0){
+			print "Letters guessed so far : @letters_guessed\n";
 		}
-	}	
+		print "Guess a letter: ";
+		chomp($letter_guess = <STDIN>);
+		
+		$repeater = 0;
+
+		LETTER_LOOP: for my $letters_guessed (@letters_guessed) {
+
+			if ($letters_guessed =~ /$letter_guess/) {
+				print "You already guessed that letter!\n";
+				$repeater = -1;
+				last LETTER_LOOP;
+			}
+		} 
+		$guess_condition = 0 if $repeater == -1;	
+		$guess_condition = 1 if $repeater == 0;
+	}
+
+	$guess_condition = 0;
+
 	if ($guess_word =~ /$letter_guess/) {
 		print "$letter_guess is in the word!\n";
 		push (@letters_correctly_guessed, $letter_guess);
